@@ -20,7 +20,7 @@ export interface NavItem {
 	href: string;
 	icon?: LucideIcon | null;
 	isActive?: boolean;
-	permission: string;
+	permission?: string;
 }
 
 export interface SharedData {
@@ -42,3 +42,6 @@ export interface User {
 	updated_at: string;
 	[ key: string ]: unknown; // This allows for additional properties...
 }
+
+// Export job orders types
+export * from './joborders';

@@ -7,11 +7,13 @@ use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-class RoleController extends Controller {
+class RoleController extends Controller
+{
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index() {
+	public function index()
+	{
 		return Inertia::render('roles/index', [
 			'roles' => Role::with('permissions')->paginate(5)->through(function ($role) {
 				return [
@@ -27,7 +29,8 @@ class RoleController extends Controller {
 	/**
 	 * Show the form for creating a new resource.
 	 */
-	public function create() {
+	public function create()
+	{
 		return Inertia::render('roles/create', [
 			'permissions' => Permission::all()->pluck('name'),
 		]);
@@ -36,7 +39,8 @@ class RoleController extends Controller {
 	/**
 	 * Store a newly created resource in storage.
 	 */
-	public function store(Request $request) {
+	public function store(Request $request)
+	{
 		$request->validate([
 			'name' => 'required|string|max:255|unique:roles,name',
 			'permissions' => 'array',
@@ -57,7 +61,8 @@ class RoleController extends Controller {
 	/**
 	 * Display the specified resource.
 	 */
-	public function show(Role $role) {
+	public function show(Role $role)
+	{
 		$roleData = [
 			'id' => $role->id,
 			'name' => $role->name,
@@ -73,7 +78,8 @@ class RoleController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 */
-	public function edit(Role $role) {
+	public function edit(Role $role)
+	{
 		return Inertia::render('roles/edit', [
 			'role' => $role->load('permissions'),
 			'permissions' => Permission::all()->pluck('name')
@@ -83,9 +89,10 @@ class RoleController extends Controller {
 	/**
 	 * Update the specified resource in storage.
 	 */
-	public function update(Request $request, Role $role) {
+	public function update(Request $request, Role $role)
+	{
 		$request->validate([
-			'name' => 'required|string|max:255|unique:roles,name' . $role->id,
+			'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
 			'permissions' => 'array',
 			'permissions.*' => 'string|exists:permissions,name'
 		]);
@@ -103,7 +110,8 @@ class RoleController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 */
-	public function destroy(Role $role) {
+	public function destroy(Role $role)
+	{
 		$role->delete();
 		return to_route('roles.index')->with('message', 'Role Deleted Successfully!');
 	}

@@ -3,6 +3,10 @@
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\JobOrderController;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -11,8 +15,12 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-	Route::get('dashboard', function () {
-		return Inertia::render('dashboard');
+	$usersCount = User::count();
+	$rolesCount = Role::count();
+	$permissionsCount = Permission::count();
+
+	Route::get('dashboard', function () use ($usersCount, $rolesCount, $permissionsCount) {
+		return Inertia::render('dashboard', compact('usersCount', 'rolesCount', 'permissionsCount'));
 	})->name('dashboard');
 
 	// permissions routes
@@ -40,6 +48,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 	Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit')->can('update users');
 	Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update')->can('update users');
 	Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->can('delete users');
+
+	// job orders routes
+	Route::get('/joborders', [JobOrderController::class, 'index'])->name('joborders.index')->can('view any job order');
+	Route::get('/joborders/create', [JobOrderController::class, 'create'])->name('joborders.create')->can('create job order');
+	Route::post('/joborders', [JobOrderController::class, 'store'])->name('joborders.store')->can('create job order');
+	Route::get('/joborders/{jobOrder}', [JobOrderController::class, 'show'])->name('joborders.show')->can('view any job order');
+	Route::get('/joborders/{jobOrder}/edit', [JobOrderController::class, 'edit'])->name('joborders.edit')->can('update job order');
+	Route::put('/joborders/{jobOrder}', [JobOrderController::class, 'update'])->name('joborders.update')->can('update job order');
+	Route::delete('/joborders/{jobOrder}', [JobOrderController::class, 'destroy'])->name('joborders.destroy')->can('delete job order');
 });
 
 require __DIR__ . '/settings.php';
