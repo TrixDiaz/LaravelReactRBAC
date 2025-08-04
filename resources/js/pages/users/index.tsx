@@ -12,8 +12,11 @@ import { User } from '@/types/users';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Edit, Trash2, User as UserIcon } from 'lucide-react';
+import { Edit, Search, Trash2, User as UserIcon } from 'lucide-react';
 import { Icon } from '@/components/icon';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -22,11 +25,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 	},
 ];
 
-export default function Users({ users }: { users: User }) {
+export default function Users({ users, roles }: { users: User, roles: string[] }) {
 	const { flash } = usePage<{ flash: { message?: string } }>().props;
 	const { can } = usePermission();
 	const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
 	const [ userToDelete, setUserToDelete ] = useState<{ id: number; name: string } | null>(null);
+	const [ search, setSearch ] = useState('');
+	const [ role, setRole ] = useState('');
+
+	// Get current URL parameters to maintain filter state
+	const urlParams = new URLSearchParams(window.location.search);
+	const currentSearch = urlParams.get('search') || '';
+	const currentRole = urlParams.get('role') || '';
+
+	// Initialize state with current URL parameters
+	useEffect(() => {
+		setSearch(currentSearch);
+		setRole(currentRole);
+	}, [ currentSearch, currentRole ]);
 
 	useEffect(() => {
 		if (flash.message) {
@@ -62,6 +78,40 @@ export default function Users({ users }: { users: User }) {
 					</CardHeader>
 					<hr />
 					<CardContent>
+						<div className="flex items-center gap-2">
+							<Input
+								type="text"
+								placeholder="Search"
+								value={search}
+								className="flex-1 min-w-0"
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+							<Select value={role} onValueChange={setRole}>
+								<SelectTrigger className="w-40 flex-shrink-0">
+									<SelectValue placeholder="Select a role" />
+								</SelectTrigger>
+								<SelectContent>
+									{roles.map((role) => (
+										<SelectItem key={role} value={role}>
+											{role}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<Button
+								onClick={() => {
+									const params: Record<string, string> = {};
+									if (search) params.search = search;
+									if (role) params.role = role;
+									router.get('/users', params);
+								}}
+								className="flex-shrink-0"
+							>
+								<Search className="w-4 h-4" />
+							</Button>
+						</div>
+
+						<Separator className="my-4" />
 						<Table>
 							<TableHeader className="">
 								<TableRow>
@@ -140,12 +190,12 @@ export default function Users({ users }: { users: User }) {
 								))}
 							</TableBody>
 						</Table>
+						{users.data.length > 0 ? (
+							<TablePagination total={users.total} from={users.from} to={users.to} links={users.links} />
+						) : (
+							<div className="flex h-full items-center justify-center">No Results Found!</div>
+						)}
 					</CardContent>
-					{users.data.length > 0 ? (
-						<TablePagination total={users.total} from={users.from} to={users.to} links={users.links} />
-					) : (
-						<div className="flex h-full items-center justify-center">No Results Found!</div>
-					)}
 				</Card>
 			</div>
 
@@ -168,6 +218,6 @@ export default function Users({ users }: { users: User }) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</AppLayout>
+		</AppLayout >
 	);
 }

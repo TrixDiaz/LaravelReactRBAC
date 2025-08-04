@@ -12,8 +12,10 @@ import { Role } from '@/types/role_permission';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Edit, Trash2, Shield as ShieldIcon } from 'lucide-react';
+import { Edit, Trash2, Shield as ShieldIcon, Search } from 'lucide-react';
 import { Icon } from '@/components/icon';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -27,6 +29,7 @@ export default function Roles({ roles }: { roles: Role }) {
 	const { can } = usePermission();
 	const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
 	const [ roleToDelete, setRoleToDelete ] = useState<{ id: number; name: string } | null>(null);
+	const [ search, setSearch ] = useState('');
 
 	useEffect(() => {
 		if (flash.message) {
@@ -62,6 +65,18 @@ export default function Roles({ roles }: { roles: Role }) {
 					</CardHeader>
 					<hr />
 					<CardContent>
+						<div className="flex items-center justify-between gap-2">
+							<Input
+								type="text"
+								placeholder="Search"
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+							<Button onClick={() => router.get('/roles', { search })}>
+								<Search className="w-4 h-4" />
+							</Button>
+						</div>
+						<Separator className="my-4" />
 						<Table>
 							<TableHeader className="">
 								<TableRow>

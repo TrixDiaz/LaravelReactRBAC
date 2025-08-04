@@ -12,22 +12,37 @@ class UserController extends Controller
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$users = User::query()
-			->latest()
-			->paginate(5)
-			->withQueryString()
-			->through(fn($user) => [
+		$query = User::query();
+
+		$roles = Role::all()->pluck('name');
+
+		if ($request->filled('search')) {
+			$query->where('name', 'like', '%' . $request->get('search') . '%');
+		}
+
+		if ($request->filled('role')) {
+			$query->whereHas('roles', function ($roleQuery) use ($request) {
+				$roleQuery->where('name', $request->get('role'));
+			});
+		}
+
+		$users = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+
+		$users = $users->through(function ($user) {
+			return [
 				'id' => $user->id,
 				'name' => $user->name,
 				'email' => $user->email,
 				'created_at' => $user->created_at->format('d-m-Y'),
 				'roles' => $user->roles->pluck('name')
-			]);
+			];
+		});
 
 		return Inertia::render('users/index', [
-			'users' => $users
+			'users' => $users,
+			'roles' => $roles
 		]);
 	}
 

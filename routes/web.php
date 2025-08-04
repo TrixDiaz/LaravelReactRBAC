@@ -4,6 +4,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -22,6 +23,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 	Route::get('dashboard', function () use ($usersCount, $rolesCount, $permissionsCount) {
 		return Inertia::render('dashboard', compact('usersCount', 'rolesCount', 'permissionsCount'));
 	})->name('dashboard');
+
+	// notifications routes
+	Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+	Route::post('notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+	Route::post('notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+	Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+	Route::delete('notifications', [NotificationController::class, 'destroyAll'])->name('notifications.destroyAll');
 
 	// permissions routes
 	Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index')->can('view any permissions');

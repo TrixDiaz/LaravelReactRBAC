@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\AdminSeeder::class,
             \Database\Seeders\RoleSeeder::class,
             \Database\Seeders\JobOrderSeeder::class,
+            \Database\Seeders\NotificationSeeder::class,
         ]);
 
         User::factory(10)->create();

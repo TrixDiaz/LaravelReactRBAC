@@ -11,11 +11,12 @@ import { usePermission } from '@/hooks/user-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Permission, SinglePermission } from '@/types/role_permission';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { Loader2, Edit, Trash2, Key as KeyIcon } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Loader2, Edit, Trash2, Key as KeyIcon, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Icon } from '@/components/icon';
+import { Separator } from '@radix-ui/react-separator';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -31,7 +32,7 @@ export default function Permissions({ permissions }: { permissions: Permission }
 	const [ permissionToDelete, setPermissionToDelete ] = useState<{ id: number; name: string } | null>(null);
 	const { flash } = usePage<{ flash: { message?: string } }>().props;
 	const { can } = usePermission();
-
+	const [ search, setSearch ] = useState('');
 
 
 	useEffect(() => {
@@ -109,6 +110,18 @@ export default function Permissions({ permissions }: { permissions: Permission }
 					</CardHeader>
 					<hr />
 					<CardContent>
+						<div className="flex items-center justify-between gap-2">
+							<Input
+								type="text"
+								placeholder="Search"
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+							<Button onClick={() => router.get('/permissions', { search })}>
+								<Search className="w-4 h-4" />
+							</Button>
+						</div>
+						<Separator className="my-4" />
 						<Table>
 							<TableHeader>
 								<TableRow>
