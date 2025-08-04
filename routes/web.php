@@ -54,9 +54,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 	Route::get('/joborders/create', [JobOrderController::class, 'create'])->name('joborders.create')->can('create job order');
 	Route::post('/joborders', [JobOrderController::class, 'store'])->name('joborders.store')->can('create job order');
 	Route::get('/joborders/{jobOrder}', [JobOrderController::class, 'show'])->name('joborders.show')->can('view any job order');
-	Route::get('/joborders/{jobOrder}/edit', [JobOrderController::class, 'edit'])->name('joborders.edit')->can('update job order');
-	Route::put('/joborders/{jobOrder}', [JobOrderController::class, 'update'])->name('joborders.update')->can('update job order');
-	Route::delete('/joborders/{jobOrder}', [JobOrderController::class, 'destroy'])->name('joborders.destroy')->can('delete job order');
+	Route::get('/joborders/{jobOrder}/edit', [JobOrderController::class, 'edit'])->name('joborders.edit')->middleware('check.joborder.edit');
+	Route::put('/joborders/{jobOrder}', [JobOrderController::class, 'update'])->name('joborders.update')->middleware('check.joborder.edit');
+	Route::delete('/joborders/{jobOrder}', [JobOrderController::class, 'destroy'])->name('joborders.destroy')->middleware('check.joborder.delete');
 });
 
 require __DIR__ . '/settings.php';

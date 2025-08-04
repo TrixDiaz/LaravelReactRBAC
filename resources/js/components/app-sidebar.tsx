@@ -36,6 +36,7 @@ const mainNavItems: NavItem[] = [
 		title: 'Job Orders',
 		href: '/joborders',
 		icon: FileText,
+		permission: 'view any job order',
 	},
 ];
 

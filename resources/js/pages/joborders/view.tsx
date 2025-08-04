@@ -9,7 +9,7 @@ import { ArrowLeft, Eye, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { toast } from 'sonner';
-import { usePermission } from '@/hooks/user-permissions';
+import { useRolePermissions } from '@/hooks/use-role-permissions';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
@@ -18,7 +18,7 @@ interface Props {
 
 export default function JobOrdersView({ jobOrder }: Props) {
   const { flash } = usePage<{ flash: { message?: string; error?: string } }>().props;
-  const { can } = usePermission();
+  const { canEditJobOrder, canDeleteJobOrder } = useRolePermissions();
   const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
 
   // Handle flash messages
@@ -105,7 +105,7 @@ export default function JobOrdersView({ jobOrder }: Props) {
                   Back
                 </Link>
               </Button>
-              {can('update job order') && (
+              {canEditJobOrder(jobOrder) && (
                 <Button asChild>
                   <Link href={route('joborders.edit', jobOrder.id)}>
                     <Pencil className="mr-2 h-4 w-4" />
@@ -113,7 +113,7 @@ export default function JobOrdersView({ jobOrder }: Props) {
                   </Link>
                 </Button>
               )}
-              {can('delete job order') && (
+              {canDeleteJobOrder() && (
                 <Button variant="destructive" onClick={openDeleteDialog}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Job Order

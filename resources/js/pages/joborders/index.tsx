@@ -14,7 +14,7 @@ import TablePagination from '@/components/table-pagination';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { toast } from 'sonner';
-import { usePermission } from '@/hooks/user-permissions';
+import { useRolePermissions } from '@/hooks/use-role-permissions';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -36,7 +36,7 @@ interface Props {
 
 export default function JobOrdersIndex({ jobOrders, filters }: Props) {
     const { flash } = usePage<{ flash: { message?: string; error?: string } }>().props;
-    const { can } = usePermission();
+    const { can, canEditJobOrder, canDeleteJobOrder } = useRolePermissions();
     const [ search, setSearch ] = useState(filters.search || '');
     const [ statusFilter, setStatusFilter ] = useState(filters.status || 'all');
     const [ priorityFilter, setPriorityFilter ] = useState(filters.priority || 'all');
@@ -286,15 +286,15 @@ export default function JobOrdersIndex({ jobOrders, filters }: Props) {
                                                         View Details
                                                     </Link>
                                                 </ContextMenuItem>
-                                                {can('update job order') && (
-                                                    <ContextMenuItem asChild>
-                                                        <Link href={route('joborders.edit', jobOrder.id)}>
-                                                            <Pencil className="mr-2 h-4 w-4" />
-                                                            Edit Job Order
-                                                        </Link>
-                                                    </ContextMenuItem>
-                                                )}
-                                                {can('delete job order') && (
+                                                                                {canEditJobOrder(jobOrder) && (
+                                    <ContextMenuItem asChild>
+                                        <Link href={route('joborders.edit', jobOrder.id)}>
+                                            <Pencil className="mr-2 h-4 w-4" />
+                                            Edit Job Order
+                                        </Link>
+                                    </ContextMenuItem>
+                                )}
+                                                {canDeleteJobOrder() && (
                                                     <ContextMenuItem
                                                         variant="destructive"
                                                         onClick={() => openDeleteDialog({ id: jobOrder.id, job_order_number: jobOrder.job_order_number })}

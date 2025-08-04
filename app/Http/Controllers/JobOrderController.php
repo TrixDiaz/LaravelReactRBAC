@@ -150,8 +150,27 @@ class JobOrderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(JobOrder $jobOrder)
+    public function edit(Request $request, JobOrder $jobOrder)
     {
+        $user = $request->user();
+
+        // Check if user has admin or moderator role (full access)
+        $userRoles = $user->roles->pluck('name')->toArray();
+        $hasAdminOrModeratorRole = in_array('admin', $userRoles) || in_array('moderator', $userRoles);
+
+        if ($hasAdminOrModeratorRole) {
+            // Allow access for admin/moderator
+        } else {
+            // Check if user is assigned to this job order
+            $isAssignedToJobOrder = $jobOrder->engineer_id === $user->id ||
+                $jobOrder->engineer_supervisor_id === $user->id ||
+                $jobOrder->company_manager_id === $user->id;
+
+            if (!$isAssignedToJobOrder) {
+                abort(403, 'You do not have permission to edit this job order. Only admins, moderators, or assigned engineers, supervisors, and managers can edit job orders.');
+            }
+        }
+
         $users = User::all();
         $jobOrder->load(['engineer', 'engineerSupervisor', 'companyManager']);
 
@@ -166,6 +185,24 @@ class JobOrderController extends Controller
      */
     public function update(Request $request, JobOrder $jobOrder)
     {
+        $user = $request->user();
+
+        // Check if user has admin or moderator role (full access)
+        $userRoles = $user->roles->pluck('name')->toArray();
+        $hasAdminOrModeratorRole = in_array('admin', $userRoles) || in_array('moderator', $userRoles);
+
+        if ($hasAdminOrModeratorRole) {
+            // Allow access for admin/moderator
+        } else {
+            // Check if user is assigned to this job order
+            $isAssignedToJobOrder = $jobOrder->engineer_id === $user->id ||
+                $jobOrder->engineer_supervisor_id === $user->id ||
+                $jobOrder->company_manager_id === $user->id;
+
+            if (!$isAssignedToJobOrder) {
+                abort(403, 'You do not have permission to edit this job order. Only admins, moderators, or assigned engineers, supervisors, and managers can edit job orders.');
+            }
+        }
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
             'company_contact_person' => 'required|string|max:255',

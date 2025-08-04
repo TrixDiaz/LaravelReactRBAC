@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             \Database\Seeders\AdminSeeder::class,
+            \Database\Seeders\RoleSeeder::class,
             \Database\Seeders\JobOrderSeeder::class,
         ]);
 

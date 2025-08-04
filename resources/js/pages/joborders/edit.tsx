@@ -13,6 +13,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { toast } from 'sonner';
+import { useRolePermissions } from '@/hooks/use-role-permissions';
 
 interface Props {
   jobOrder: JobOrder;
@@ -20,6 +21,8 @@ interface Props {
 }
 
 export default function JobOrdersEdit({ jobOrder, users }: Props) {
+  const { hasRole, hasAnyRole } = useRolePermissions();
+  
   const breadcrumbs: BreadcrumbItem[] = [
     {
       title: 'Job Orders',
@@ -37,6 +40,13 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
   const [ notes, setNotes ] = useState<Note[]>(jobOrder.notes || [ { problem_description: '', services_rendered: '' } ]);
   const [ quotation, setQuotation ] = useState<QuotationItem[]>(jobOrder.quotation || [ { product_name: '', unit: '', qty: 1, price: 0, total: 0 } ]);
   const [ attachments, setAttachments ] = useState<Attachment[]>(jobOrder.attachments || [ { name: '', file_path: '' } ]);
+
+  // Helper functions to determine field accessibility based on user role
+  const isManagerOnly = hasRole('manager') && !hasAnyRole(['admin', 'moderator']);
+  const canEditAllFields = hasAnyRole(['admin', 'moderator']);
+  const canEditManagerFields = hasRole('manager') || hasAnyRole(['admin', 'moderator']);
+  const canEditEngineerFields = hasRole('engineer') || hasAnyRole(['admin', 'moderator']);
+  const canEditSupervisorFields = hasRole('supervisor') || hasAnyRole(['admin', 'moderator']);
 
   const { data, setData, put, processing, errors: formErrors } = useForm({
     company_name: jobOrder.company_name,
@@ -176,6 +186,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_name}
                         onChange={(e) => setData('company_name', e.target.value)}
                         className={formErrors.company_name ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.company_name && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.company_name}</p>
@@ -188,6 +199,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_contact_person}
                         onChange={(e) => setData('company_contact_person', e.target.value)}
                         className={formErrors.company_contact_person ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.company_contact_person && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.company_contact_person}</p>
@@ -200,6 +212,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_department}
                         onChange={(e) => setData('company_department', e.target.value)}
                         className={formErrors.company_department ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.company_department && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.company_department}</p>
@@ -212,6 +225,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_contact_number}
                         onChange={(e) => setData('company_contact_number', e.target.value)}
                         className={formErrors.company_contact_number ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.company_contact_number && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.company_contact_number}</p>
@@ -224,6 +238,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_address}
                         onChange={(e) => setData('company_address', e.target.value)}
                         className={formErrors.company_address ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.company_address && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.company_address}</p>
@@ -240,6 +255,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.date_request}
                         onChange={(e) => setData('date_request', e.target.value)}
                         className={formErrors.date_request ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.date_request && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.date_request}</p>
@@ -253,6 +269,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.date_start}
                         onChange={(e) => setData('date_start', e.target.value)}
                         className={formErrors.date_start ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.date_start && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.date_start}</p>
@@ -266,6 +283,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.date_end}
                         onChange={(e) => setData('date_end', e.target.value)}
                         className={formErrors.date_end ? 'border-red-500' : ''}
+                        disabled={isManagerOnly}
                       />
                       {formErrors.date_end && (
                         <p className="text-sm text-red-500 mt-1">{formErrors.date_end}</p>
@@ -276,7 +294,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="status">Status</Label>
-                      <Select value={data.status} onValueChange={(value) => setData('status', value as any)}>
+                      <Select value={data.status} onValueChange={(value) => setData('status', value as any)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -290,7 +308,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                     </div>
                     <div>
                       <Label htmlFor="priority">Priority</Label>
-                      <Select value={data.priority} onValueChange={(value) => setData('priority', value as any)}>
+                      <Select value={data.priority} onValueChange={(value) => setData('priority', value as any)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -304,7 +322,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                     </div>
                     <div>
                       <Label htmlFor="type">Type</Label>
-                      <Select value={data.type} onValueChange={(value) => setData('type', value as any)}>
+                      <Select value={data.type} onValueChange={(value) => setData('type', value as any)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -325,6 +343,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                       value={data.description || ''}
                       onChange={(e) => setData('description', e.target.value)}
                       className={formErrors.description ? 'border-red-500' : ''}
+                      disabled={isManagerOnly}
                     />
                     {formErrors.description && (
                       <p className="text-sm text-red-500 mt-1">{formErrors.description}</p>
@@ -349,6 +368,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeNote(index)}
+                            disabled={isManagerOnly}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -361,6 +381,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                             value={note.problem_description}
                             onChange={(e) => updateNote(index, 'problem_description', e.target.value)}
                             placeholder="Describe the problem..."
+                            disabled={isManagerOnly}
                           />
                         </div>
                         <div>
@@ -369,12 +390,13 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                             value={note.services_rendered}
                             onChange={(e) => updateNote(index, 'services_rendered', e.target.value)}
                             placeholder="Describe services rendered..."
+                            disabled={isManagerOnly}
                           />
                         </div>
                       </div>
                     </div>
                   ))}
-                  <Button type="button" variant="outline" onClick={addNote}>
+                  <Button type="button" variant="outline" onClick={addNote} disabled={isManagerOnly}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Note
                   </Button>
@@ -407,6 +429,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                                 value={item.product_name}
                                 onChange={(e) => updateQuotationItem(index, 'product_name', e.target.value)}
                                 placeholder="Product name"
+                                disabled={isManagerOnly}
                               />
                             </td>
                             <td className="p-2">
@@ -414,6 +437,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                                 value={item.unit}
                                 onChange={(e) => updateQuotationItem(index, 'unit', e.target.value)}
                                 placeholder="Unit"
+                                disabled={isManagerOnly}
                               />
                             </td>
                             <td className="p-2">
@@ -422,6 +446,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                                 value={item.qty}
                                 onChange={(e) => updateQuotationItem(index, 'qty', parseInt(e.target.value) || 0)}
                                 placeholder="Qty"
+                                disabled={isManagerOnly}
                               />
                             </td>
                             <td className="p-2">
@@ -431,6 +456,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                                 value={item.price}
                                 onChange={(e) => updateQuotationItem(index, 'price', parseFloat(e.target.value) || 0)}
                                 placeholder="Price"
+                                disabled={isManagerOnly}
                               />
                             </td>
                             <td className="p-2">
@@ -447,6 +473,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removeQuotationItem(index)}
+                                  disabled={isManagerOnly}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -457,7 +484,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                       </tbody>
                     </table>
                   </div>
-                  <Button type="button" variant="outline" onClick={addQuotationItem}>
+                  <Button type="button" variant="outline" onClick={addQuotationItem} disabled={isManagerOnly}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Item
                   </Button>
@@ -478,6 +505,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                           value={attachment.name}
                           onChange={(e) => updateAttachment(index, 'name', e.target.value)}
                           placeholder="File name"
+                          disabled={isManagerOnly}
                         />
                       </div>
                       <div className="flex-1">
@@ -486,6 +514,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                           value={attachment.file_path}
                           onChange={(e) => updateAttachment(index, 'file_path', e.target.value)}
                           placeholder="File path or URL"
+                          disabled={isManagerOnly}
                         />
                       </div>
                       {attachments.length > 1 && (
@@ -494,13 +523,14 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeAttachment(index)}
+                          disabled={isManagerOnly}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
                     </div>
                   ))}
-                  <Button type="button" variant="outline" onClick={addAttachment}>
+                  <Button type="button" variant="outline" onClick={addAttachment} disabled={isManagerOnly}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Attachment
                   </Button>
@@ -516,7 +546,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="engineer_id">Engineer</Label>
-                      <Select value={data.engineer_id ? data.engineer_id.toString() : ''} onValueChange={(value) => setData('engineer_id', value ? parseInt(value) : undefined)}>
+                      <Select value={data.engineer_id ? data.engineer_id.toString() : ''} onValueChange={(value) => setData('engineer_id', value ? parseInt(value) : undefined)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Engineer" />
                         </SelectTrigger>
@@ -531,7 +561,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                     </div>
                     <div>
                       <Label htmlFor="engineer_supervisor_id">Supervisor</Label>
-                      <Select value={data.engineer_supervisor_id ? data.engineer_supervisor_id.toString() : ''} onValueChange={(value) => setData('engineer_supervisor_id', value ? parseInt(value) : undefined)}>
+                      <Select value={data.engineer_supervisor_id ? data.engineer_supervisor_id.toString() : ''} onValueChange={(value) => setData('engineer_supervisor_id', value ? parseInt(value) : undefined)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Supervisor" />
                         </SelectTrigger>
@@ -546,7 +576,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                     </div>
                     <div>
                       <Label htmlFor="company_manager_id">Manager</Label>
-                      <Select value={data.company_manager_id ? data.company_manager_id.toString() : ''} onValueChange={(value) => setData('company_manager_id', value ? parseInt(value) : undefined)}>
+                      <Select value={data.company_manager_id ? data.company_manager_id.toString() : ''} onValueChange={(value) => setData('company_manager_id', value ? parseInt(value) : undefined)} disabled={isManagerOnly}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Manager" />
                         </SelectTrigger>
@@ -569,6 +599,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.engineer_signature || ''}
                         onChange={(e) => setData('engineer_signature', e.target.value)}
                         placeholder="Signature or initials"
+                        disabled={isManagerOnly}
                       />
                     </div>
                     <div>
@@ -578,6 +609,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.engineer_supervisor_signature || ''}
                         onChange={(e) => setData('engineer_supervisor_signature', e.target.value)}
                         placeholder="Signature or initials"
+                        disabled={isManagerOnly}
                       />
                     </div>
                     <div>
@@ -587,6 +619,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         value={data.company_manager_signature || ''}
                         onChange={(e) => setData('company_manager_signature', e.target.value)}
                         placeholder="Signature or initials"
+                        disabled={!canEditManagerFields}
                       />
                     </div>
                   </div>
@@ -597,6 +630,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         id="engineer_approved"
                         checked={data.engineer_approved}
                         onCheckedChange={(checked) => setData('engineer_approved', checked === true)}
+                        disabled={isManagerOnly}
                       />
                       <Label htmlFor="engineer_approved">Engineer Approved</Label>
                     </div>
@@ -605,6 +639,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         id="engineer_supervisor_approved"
                         checked={data.engineer_supervisor_approved}
                         onCheckedChange={(checked) => setData('engineer_supervisor_approved', checked === true)}
+                        disabled={isManagerOnly}
                       />
                       <Label htmlFor="engineer_supervisor_approved">Supervisor Approved</Label>
                     </div>
@@ -613,6 +648,7 @@ export default function JobOrdersEdit({ jobOrder, users }: Props) {
                         id="company_manager_approved"
                         checked={data.company_manager_approved}
                         onCheckedChange={(checked) => setData('company_manager_approved', checked === true)}
+                        disabled={!canEditManagerFields}
                       />
                       <Label htmlFor="company_manager_approved">Manager Approved</Label>
                     </div>
