@@ -22,7 +22,10 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($jobOrderPermissions as $permissionName) {
-            Permission::firstOrCreate(['name' => $permissionName]);
+            Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => 'web'
+            ]);
         }
 
         // Create roles and assign permissions
@@ -63,4 +66,4 @@ class RoleSeeder extends Seeder
             $adminRole->givePermissionTo($jobOrderPermissions);
         }
     }
-} 
+}

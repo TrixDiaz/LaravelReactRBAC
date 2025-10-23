@@ -16,11 +16,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-	$usersCount = User::count();
-	$rolesCount = Role::count();
-	$permissionsCount = Permission::count();
+	Route::get('dashboard', function () {
+		$usersCount = User::count();
+		$rolesCount = Role::count();
+		$permissionsCount = Permission::count();
 
-	Route::get('dashboard', function () use ($usersCount, $rolesCount, $permissionsCount) {
 		return Inertia::render('dashboard', compact('usersCount', 'rolesCount', 'permissionsCount'));
 	})->name('dashboard');
 

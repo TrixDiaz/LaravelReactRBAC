@@ -12,19 +12,19 @@ class JobOrderSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Permission::create([
+        \App\Models\Permission::firstOrCreate([
             'name' => 'view any job order',
             'guard_name' => 'web',
         ]);
-        \App\Models\Permission::create([
+        \App\Models\Permission::firstOrCreate([
             'name' => 'create job order',
             'guard_name' => 'web',
         ]);
-        \App\Models\Permission::create([
+        \App\Models\Permission::firstOrCreate([
             'name' => 'update job order',
             'guard_name' => 'web',
         ]);
-        \App\Models\Permission::create([
+        \App\Models\Permission::firstOrCreate([
             'name' => 'delete job order',
             'guard_name' => 'web',
         ]);

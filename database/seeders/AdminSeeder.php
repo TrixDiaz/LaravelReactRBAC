@@ -44,7 +44,10 @@ class AdminSeeder extends Seeder
 
         // Create and assign permissions to the admin role
         foreach ($permissions as $permissionName) {
-            $permission = Permission::firstOrCreate(['name' => $permissionName]);
+            $permission = Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => 'web'
+            ]);
             $adminRole->givePermissionTo($permission); // assign to role
         }
 
